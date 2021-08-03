@@ -48,6 +48,7 @@ public class ClassOrInterfaceBuilder implements AbstractBuilder<ClassOrInterface
 		rtr.setModifiers(modifiers);
 		rtr.setImplementedTypes(implementedTypes);
 		rtr.setMethods(methods);
+		rtr.setAttributes(attributes);
 		return rtr;
 	}
 }
