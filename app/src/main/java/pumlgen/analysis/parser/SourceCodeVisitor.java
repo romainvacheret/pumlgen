@@ -1,12 +1,15 @@
 package pumlgen.analysis.parser;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-import com.github.javaparser.ast.body.FieldDeclaration;
-import com.github.javaparser.ast.body.MethodDeclaration;
-import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.*;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import pumlgen.analysis.builders.ClassOrInterfaceBuilder;
@@ -18,21 +21,40 @@ import pumlgen.analysis.summaries.VariableSummary;
 
 public class SourceCodeVisitor {
 
+	public static Optional<CompilationUnit> generateCompilationUnitFromFile(File file) {
+		CompilationUnit compilationUnit = null;
+		try {
+			compilationUnit = StaticJavaParser.parse(file);
+		} catch(FileNotFoundException e) {
+			// Nothing to do
+		}
+
+		return Optional.of(compilationUnit);
+	}
+
+	public Set<ClassOrInterfaceSummary> visit(CompilationUnit compilationUnit) {
+		return compilationUnit.getTypes().stream()
+				.filter(type -> type.isClassOrInterfaceDeclaration())
+				.map(TypeDeclaration::asClassOrInterfaceDeclaration)
+				.map(declaration -> visit(declaration))
+				.collect(Collectors.toSet());
+	}
+
 	public ClassOrInterfaceSummary visit(ClassOrInterfaceDeclaration declaration) {
 		return new ClassOrInterfaceBuilder()
 			.withName(declaration.getNameAsString())
 			.withModifiers(declaration.getModifiers().stream()
-					.map(Modifier::toString)
-					.collect(Collectors.toSet()))
+				.map(Modifier::toString)
+				.collect(Collectors.toSet()))
 			.withImplementedTypes(declaration.getImplementedTypes().stream()
-					.map(ClassOrInterfaceType::getNameAsString)
-					.collect(Collectors.toSet()))
+				.map(ClassOrInterfaceType::getNameAsString)
+				.collect(Collectors.toSet()))
 			.withMethods(declaration.getMethods().stream()
-					.map(method -> visit(method))
-					.collect(Collectors.toSet()))
+				.map(method -> visit(method))
+				.collect(Collectors.toSet()))
 			.withAtrributes(declaration.getFields().stream()
-					.map(attribute -> visit(attribute))
-					.collect(Collectors.toSet()))
+				.map(attribute -> visit(attribute))
+				.collect(Collectors.toSet()))
 			.build();
 	}
 
