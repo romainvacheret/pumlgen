@@ -12,13 +12,15 @@ import java.util.stream.Collectors;
 public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
     private final String name;
     private final boolean isInterface;
+    private final boolean isAbstract;
     private final Set<String> modifiers = new HashSet<>();
     private final List<String> attributes = new ArrayList<>();
     private final List<String> methods = new ArrayList<>();
 
-    public UMLClassOrInterfaceBuilder(String name, boolean isInterface) {
+    public UMLClassOrInterfaceBuilder(String name, boolean isInterface, boolean isAbstract) {
         this.name = name;
         this.isInterface = isInterface;
+        this.isAbstract = isAbstract;
     }
 
 
@@ -28,7 +30,12 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
             getVisibilityModifierSymbol(method.getModifiers()))
                 .append(SPACE)
                 .append(method.getName())
-                .append(BRACKETS)
+                .append(SPACE)
+                .append("(")
+                .append(method.getParameters().stream()
+                    .map(parameter -> String.format("%s: %s", parameter.getName(), parameter.getType()))
+                    .collect(Collectors.joining(", ")))
+                .append(")")
                 .append(COLON)
                 .append(SPACE)
                 .append(method.getType())
@@ -39,8 +46,8 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
 
     public UMLClassOrInterfaceBuilder withAttribute(VariableSummary attribute) {
         // TODO Add static/final
-        attributes.add(new StringBuilder(
-                getVisibilityModifierSymbol(attribute.getModifiers()))
+        attributes.add(new StringBuilder() // TODO ???????
+                .append(getVisibilityModifierSymbol(attribute.getModifiers()))
                 .append(SPACE)
                 .append(attribute.getName())
                 .append(COLON)
@@ -63,7 +70,7 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
 
     @Override
     public String build() {
-       return new StringBuilder(String.format("%s %s {", isInterface ? "interface" : "class", name))
+       return new StringBuilder(String.format("%s %s %s {", isAbstract ? "abstract" : "", isInterface ? "interface" : "class", name))
            .append(NEW_LINE)
            .append(TAB)
            .append(attributes.stream().collect(Collectors.joining(TABBED_NEW_LINE)))

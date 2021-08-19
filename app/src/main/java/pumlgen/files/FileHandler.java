@@ -1,4 +1,4 @@
-package pumlgen;
+package pumlgen.files;
 
 import com.github.javaparser.ast.CompilationUnit;
 import pumlgen.analysis.parser.SourceCodeVisitor;
@@ -15,7 +15,8 @@ public class FileHandler {
           visitor.visit(cu).stream()
                .map(summary -> new UMLClassOrInterfaceBuilder(
                     summary.getName(),
-                    summary.getIsInterface())
+                    summary.getIsInterface(),
+                    summary.getModifiers().contains("abstract"))
                        .withMethods(summary.getMethods())
                        .withAttributes(summary.getAttributes())
                        .build())

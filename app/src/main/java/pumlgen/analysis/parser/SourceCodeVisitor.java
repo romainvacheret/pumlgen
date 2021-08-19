@@ -43,6 +43,7 @@ public class SourceCodeVisitor {
 	public ClassOrInterfaceSummary visit(ClassOrInterfaceDeclaration declaration) {
 		return new ClassOrInterfaceBuilder()
 			.withName(declaration.getNameAsString())
+			.withIsInterface(declaration.isInterface())
 			.withModifiers(declaration.getModifiers().stream()
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))
@@ -52,7 +53,7 @@ public class SourceCodeVisitor {
 			.withMethods(declaration.getMethods().stream()
 				.map(method -> visit(method))
 				.collect(Collectors.toSet()))
-			.withAtrributes(declaration.getFields().stream()
+			.withAttributes(declaration.getFields().stream()
 				.map(attribute -> visit(attribute))
 				.collect(Collectors.toSet()))
 			.build();
