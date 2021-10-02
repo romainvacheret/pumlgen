@@ -59,12 +59,12 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
     }
 
     public UMLClassOrInterfaceBuilder withMethods(Set<MethodSummary> methods) {
-        methods.stream().forEach(method -> withMethod(method));
+        methods.stream().forEach(this::withMethod);
         return this;
     }
 
     public UMLClassOrInterfaceBuilder withAttributes(Set<VariableSummary> attributes) {
-        attributes.stream().forEach(attribute -> withAttribute(attribute));
+        attributes.stream().forEach(this::withAttribute);
         return this;
     }
 

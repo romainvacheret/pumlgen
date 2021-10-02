@@ -3,13 +3,18 @@ package pumlgen.analysis.parser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
-import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.PackageDeclaration;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
 import pumlgen.analysis.builders.ClassOrInterfaceBuilder;
@@ -18,6 +23,7 @@ import pumlgen.analysis.builders.VariableBuilder;
 import pumlgen.analysis.summaries.ClassOrInterfaceSummary;
 import pumlgen.analysis.summaries.MethodSummary;
 import pumlgen.analysis.summaries.VariableSummary;
+import pumlgen.uml.builders.UMLPackageBuilder;
 
 public class SourceCodeVisitor {
 
@@ -32,12 +38,21 @@ public class SourceCodeVisitor {
 		return Optional.of(compilationUnit);
 	}
 
-	public Set<ClassOrInterfaceSummary> visit(CompilationUnit compilationUnit) {
-		return compilationUnit.getTypes().stream()
-				.filter(type -> type.isClassOrInterfaceDeclaration())
+	public Optional<UMLPackageBuilder> visit(CompilationUnit compilationUnit) {
+		Optional<String> packageName = compilationUnit
+			.getPackageDeclaration()
+			.flatMap(p -> Optional.of(p.getNameAsString()));
+
+		if(packageName.isEmpty()) {
+			return Optional.empty();
+		}
+
+		return Optional.of(new UMLPackageBuilder(packageName.get())
+			.withClassesOrInterfaces(compilationUnit.getTypes().stream()
+				.filter(BodyDeclaration::isClassOrInterfaceDeclaration)
 				.map(TypeDeclaration::asClassOrInterfaceDeclaration)
-				.map(declaration -> visit(declaration))
-				.collect(Collectors.toSet());
+				.map(this::visit)
+				.collect(Collectors.toSet())));
 	}
 
 	public ClassOrInterfaceSummary visit(ClassOrInterfaceDeclaration declaration) {
@@ -51,10 +66,10 @@ public class SourceCodeVisitor {
 				.map(ClassOrInterfaceType::getNameAsString)
 				.collect(Collectors.toSet()))
 			.withMethods(declaration.getMethods().stream()
-				.map(method -> visit(method))
+				.map(this::visit)
 				.collect(Collectors.toSet()))
 			.withAttributes(declaration.getFields().stream()
-				.map(attribute -> visit(attribute))
+				.map(this::visit)
 				.collect(Collectors.toSet()))
 			.build();
 	}
@@ -67,8 +82,8 @@ public class SourceCodeVisitor {
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))
 			.withParameters(declaration.getParameters().stream()
-				.map(parameter -> visit(parameter))
-				.collect(Collectors.toList()))
+				.map(this::visit)
+				.toList())
 			.build();
 	}
 
@@ -87,5 +102,9 @@ public class SourceCodeVisitor {
 			 	.collect(Collectors.toSet()))
 			 .withType(declaration.getVariables().get(0).getTypeAsString())
 			 .build();
+	}
+
+	public String visit(PackageDeclaration declaration) {
+		return declaration.getNameAsString();
 	}
 }
