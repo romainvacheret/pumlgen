@@ -46,7 +46,7 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
 
     public UMLClassOrInterfaceBuilder withAttribute(VariableSummary attribute) {
         // TODO Add static/final
-        attributes.add(new StringBuilder() // TODO ???????
+        attributes.add(new StringBuilder()
                 .append(getVisibilityModifierSymbol(attribute.getModifiers()))
                 .append(SPACE)
                 .append(attribute.getName())
@@ -58,6 +58,7 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
         return this;
     }
 
+    //TODO Add constructors
     public UMLClassOrInterfaceBuilder withMethods(Set<MethodSummary> methods) {
         methods.stream().forEach(this::withMethod);
         return this;
