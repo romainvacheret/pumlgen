@@ -1,0 +1,6 @@
+package example.a;
+
+interface Inter {
+    void voidFunc(String x);
+    int count();
+}

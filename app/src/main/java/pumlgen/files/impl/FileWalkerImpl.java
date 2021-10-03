@@ -2,11 +2,11 @@ package pumlgen.files.impl;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import pumlgen.files.models.FileReader;
 import pumlgen.files.models.FileWalker;
 import pumlgen.uml.builders.UMLPackageBuilder;
@@ -21,7 +21,6 @@ public class FileWalkerImpl implements FileWalker {
         fileExtension.equals(JAVA) || fileExtension.equals(TXT);
 
     private Optional<String> getFileExtension(final String filename) {
-        System.out.println(filename);
         return Optional.ofNullable(filename)
             .filter(f -> f.contains(DOT))
             .map(f -> f.substring(filename.lastIndexOf(DOT) + 1));
@@ -31,20 +30,27 @@ public class FileWalkerImpl implements FileWalker {
 	public Optional<UMLPackageBuilder> walk(final File initialFile) {
         final Optional<String> fileExtension = getFileExtension(initialFile.getName());
 
-        if(fileExtension.isEmpty()) {
+        if(initialFile.isFile() && fileExtension.isEmpty()) {
             return Optional.empty();
         }
 
-		System.out.println(initialFile.isFile() + " " +  initialFile.isDirectory());
+		System.out.println("walk: " + initialFile.isFile() + " " +  initialFile.isDirectory());
 
 		return initialFile.isFile() ? visitFile(initialFile) : visitDirectory(initialFile);
     }
 
 	private Optional<UMLPackageBuilder> visitDirectory(final File directory) {
-		System.out.println(Arrays.stream(directory.listFiles()).map(File::getName).collect(Collectors.joining(" ")));
-		Arrays.stream(directory.listFiles()).forEach(this::walk);
+        System.out.println(directory.getName() + " list: " + Arrays.stream(directory.listFiles()).map(File::getName).toList());
+        
+        final Stream<UMLPackageBuilder> builderStream = Arrays
+            .stream(directory.listFiles()).map(this::walk).flatMap(Optional::stream); 
+        final Iterator<UMLPackageBuilder> builderIterator = builderStream.iterator();
+        final UMLPackageBuilder firstBuilder = builderIterator.next();
 
-		return Optional.empty();
+        builderIterator.forEachRemaining(firstBuilder::merge);
+        
+
+		return Optional.of(firstBuilder);
 	}	
 
 	private Optional<UMLPackageBuilder> visitFile(final File file) {
