@@ -23,6 +23,7 @@ dependencies {
     // This dependency is used by the application.
     implementation 'com.google.guava:guava:30.0-jre'
     implementation 'com.github.javaparser:javaparser-core:3.22.1'
+    implementation 'com.beust:jcommander:1.78'
     compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 }
