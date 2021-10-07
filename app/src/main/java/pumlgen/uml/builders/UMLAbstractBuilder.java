@@ -12,11 +12,15 @@ public abstract class UMLAbstractBuilder {
     public static final String COLON = ":";
     public static final String CLOSING_BRACE = "}";
 
-
-    public static String getVisibilityModifierSymbol(Set<String> modifiers) {
-        final Set<String> stripedModifiers = modifiers.stream()
+    private static Set<String> getStripedModifiers(Set<String> modifiers) {
+        return  modifiers.stream()
             .map(String::strip)
             .collect(Collectors.toSet());
+    }
+
+
+    public static String getVisibilityModifierSymbol(Set<String> modifiers) {
+        final Set<String> stripedModifiers = getStripedModifiers(modifiers);
         if(stripedModifiers.contains("public")) {
             return "+";
         }
@@ -27,6 +31,17 @@ public abstract class UMLAbstractBuilder {
             return "#";
         }
         return "~";
+    }
+
+    public static String getStaticOrAbstractModifiers(Set<String> modifiers) {
+        final Set<String> stripedModifiers = getStripedModifiers(modifiers);
+        if(stripedModifiers.contains("abstract")) {
+            return "{abstract}";
+        } else if(stripedModifiers.contains("static")) {
+            return "{static}";
+        } else {
+            return "";
+        }
     }
 
     public abstract String build();

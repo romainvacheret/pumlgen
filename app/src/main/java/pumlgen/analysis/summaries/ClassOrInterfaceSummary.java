@@ -12,4 +12,5 @@ public class ClassOrInterfaceSummary {
 	private Set<String> implementedTypes;
 	private Set<MethodSummary> methods;
 	private Set<VariableSummary> attributes;
+	private Set<MethodSummary> constructors;
 }

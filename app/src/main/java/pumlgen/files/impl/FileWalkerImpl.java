@@ -34,14 +34,10 @@ public class FileWalkerImpl implements FileWalker {
             return Optional.empty();
         }
 
-		System.out.println("walk: " + initialFile.isFile() + " " +  initialFile.isDirectory());
-
 		return initialFile.isFile() ? visitFile(initialFile) : visitDirectory(initialFile);
     }
 
 	private Optional<UMLPackageBuilder> visitDirectory(final File directory) {
-        System.out.println(directory.getName() + " list: " + Arrays.stream(directory.listFiles()).map(File::getName).toList());
-        
         final Stream<UMLPackageBuilder> builderStream = Arrays
             .stream(directory.listFiles()).map(this::walk).flatMap(Optional::stream); 
         final Iterator<UMLPackageBuilder> builderIterator = builderStream.iterator();

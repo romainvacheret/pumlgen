@@ -11,6 +11,7 @@ import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
@@ -65,6 +66,9 @@ public class SourceCodeVisitor {
 			.withImplementedTypes(declaration.getImplementedTypes().stream()
 				.map(ClassOrInterfaceType::getNameAsString)
 				.collect(Collectors.toSet()))
+			.withMethods(declaration.getConstructors().stream()
+				.map(this::visit)
+				.collect(Collectors.toSet()))
 			.withMethods(declaration.getMethods().stream()
 				.map(this::visit)
 				.collect(Collectors.toSet()))
@@ -78,6 +82,19 @@ public class SourceCodeVisitor {
 		return new MethodBuilder()
 			.withName(declaration.getNameAsString())
 			.withType(declaration.getTypeAsString())
+			.withModifiers(declaration.getModifiers().stream()
+				.map(Modifier::toString)
+				.collect(Collectors.toSet()))
+			.withParameters(declaration.getParameters().stream()
+				.map(this::visit)
+				.toList())
+			.build();
+	}
+
+	public MethodSummary visit(ConstructorDeclaration declaration) {
+		return new MethodBuilder()
+			.withName("this")
+			.withType(declaration.getSignature().getName())
 			.withModifiers(declaration.getModifiers().stream()
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))

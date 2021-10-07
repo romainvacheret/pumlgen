@@ -42,7 +42,6 @@ public class UMLPackageBuilder extends UMLAbstractBuilder {
     }
 
     public UMLPackageBuilder merge(final UMLPackageBuilder builder) {
-        System.out.println("merge " + packageName + " " + builder.getPackageName());
         if(packageName.equals(builder.getPackageName())) {
             classOrInterfaceSummaries.addAll(builder.getClassOrInterfaceSummaries());
         } else {
@@ -73,7 +72,6 @@ public class UMLPackageBuilder extends UMLAbstractBuilder {
     }
 
     private String buildSubPackages() {
-        System.out.println("sub count: " + packageName + " " + subPackages.size());
         return subPackages.stream()
             .map(UMLPackageBuilder::build)
             .collect(Collectors.joining(NEW_LINE));

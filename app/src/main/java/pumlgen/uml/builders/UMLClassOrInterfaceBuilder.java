@@ -4,7 +4,6 @@ import pumlgen.analysis.summaries.MethodSummary;
 import pumlgen.analysis.summaries.VariableSummary;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -13,7 +12,6 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
     private final String name;
     private final boolean isInterface;
     private final boolean isAbstract;
-    private final Set<String> modifiers = new HashSet<>();
     private final List<String> attributes = new ArrayList<>();
     private final List<String> methods = new ArrayList<>();
 
@@ -23,14 +21,11 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
         this.isAbstract = isAbstract;
     }
 
-
     public UMLClassOrInterfaceBuilder withMethod(MethodSummary method) {
-        // TODO Add static/abstract
-        methods.add(new StringBuilder(
-            getVisibilityModifierSymbol(method.getModifiers()))
+        methods.add(new StringBuilder(getStaticOrAbstractModifiers(method.getModifiers()))
+                .append(getVisibilityModifierSymbol(method.getModifiers()))
                 .append(SPACE)
                 .append(method.getName())
-                .append(SPACE)
                 .append("(")
                 .append(method.getParameters().stream()
                     .map(parameter -> String.format("%s: %s", parameter.getName(), parameter.getType()))
@@ -45,8 +40,7 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
     }
 
     public UMLClassOrInterfaceBuilder withAttribute(VariableSummary attribute) {
-        // TODO Add static/final
-        attributes.add(new StringBuilder()
+        attributes.add(new StringBuilder(getStaticOrAbstractModifiers(attribute.getModifiers()))
                 .append(getVisibilityModifierSymbol(attribute.getModifiers()))
                 .append(SPACE)
                 .append(attribute.getName())
@@ -58,7 +52,6 @@ public class UMLClassOrInterfaceBuilder extends UMLAbstractBuilder {
         return this;
     }
 
-    //TODO Add constructors
     public UMLClassOrInterfaceBuilder withMethods(Set<MethodSummary> methods) {
         methods.stream().forEach(this::withMethod);
         return this;
