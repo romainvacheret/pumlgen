@@ -10,3 +10,5 @@ bin
 .project
 .vscode
 
+# Other
+*.puml
