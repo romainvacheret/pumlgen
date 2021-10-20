@@ -13,6 +13,7 @@ public class ClassOrInterfaceBuilder implements AbstractBuilder<ClassOrInterface
 	private boolean isInterface = false;
 	private final Set<String> modifiers = new HashSet<>();
 	private final Set<String> implementedTypes = new HashSet<>();
+	private final Set<String> extendedTypes = new HashSet<>();
 	private final Set<MethodSummary> methods = new HashSet<>();
 	private final Set<VariableSummary> attributes = new HashSet<>();
 
@@ -38,6 +39,11 @@ public class ClassOrInterfaceBuilder implements AbstractBuilder<ClassOrInterface
 		return this;
 	}
 
+	public ClassOrInterfaceBuilder withExtendedTypes(Set<String> extendedTypes) {
+		this.extendedTypes.addAll(extendedTypes);
+		return this;
+	}
+
 	public ClassOrInterfaceBuilder withMethods(Set<MethodSummary> methods) {
 		this.methods.addAll(methods);
 		return this;
@@ -55,6 +61,7 @@ public class ClassOrInterfaceBuilder implements AbstractBuilder<ClassOrInterface
 		rtr.setIsInterface(isInterface);
 		rtr.setModifiers(modifiers);
 		rtr.setImplementedTypes(implementedTypes);
+		rtr.setExtendedTypes(extendedTypes);
 		rtr.setMethods(methods);
 		rtr.setAttributes(attributes);
 		return rtr;

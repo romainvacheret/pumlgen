@@ -10,6 +10,7 @@ public abstract class UMLAbstractBuilder {
     public static final String BRACKETS = "()";
     public static final String SPACE = " ";
     public static final String COLON = ":";
+    public static final String OPENING_BRACE = "{";
     public static final String CLOSING_BRACE = "}";
 
     private static Set<String> getStripedModifiers(Set<String> modifiers) {

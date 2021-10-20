@@ -10,6 +10,7 @@ public class ClassOrInterfaceSummary {
 	private String name;
 	private Set<String> modifiers;
 	private Set<String> implementedTypes;
+	private Set<String> extendedTypes;
 	private Set<MethodSummary> methods;
 	private Set<VariableSummary> attributes;
 	private Set<MethodSummary> constructors;

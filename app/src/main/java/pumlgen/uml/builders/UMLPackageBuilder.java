@@ -66,6 +66,8 @@ public class UMLPackageBuilder extends UMLAbstractBuilder {
             summary.getName(),
             summary.getIsInterface(),
             summary.getModifiers().contains("abstract"))
+                .withExtendedTypes(summary.getExtendedTypes())
+                .withImplementedTypes(summary.getImplementedTypes())
                 .withMethods(summary.getMethods())
                 .withAttributes(summary.getAttributes())
                 .build();

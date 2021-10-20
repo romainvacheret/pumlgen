@@ -2,6 +2,7 @@ package pumlgen.analysis.parser;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -57,6 +58,10 @@ public class SourceCodeVisitor {
 	}
 
 	public ClassOrInterfaceSummary visit(ClassOrInterfaceDeclaration declaration) {
+		List<ClassOrInterfaceType> extendedTypes = declaration.getExtendedTypes();
+		List<ClassOrInterfaceType> implementedTypes = declaration.getImplementedTypes();
+		System.out.println("Extended" + extendedTypes.toString());
+		System.out.println("Implemented" + implementedTypes.toString());
 		return new ClassOrInterfaceBuilder()
 			.withName(declaration.getNameAsString())
 			.withIsInterface(declaration.isInterface())
@@ -64,6 +69,9 @@ public class SourceCodeVisitor {
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))
 			.withImplementedTypes(declaration.getImplementedTypes().stream()
+				.map(ClassOrInterfaceType::getNameAsString)
+				.collect(Collectors.toSet()))
+			.withExtendedTypes(declaration.getExtendedTypes().stream()
 				.map(ClassOrInterfaceType::getNameAsString)
 				.collect(Collectors.toSet()))
 			.withMethods(declaration.getConstructors().stream()
