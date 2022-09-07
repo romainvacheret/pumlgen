@@ -1,17 +1,26 @@
 package pumlgen.analysis.summaries;
 
+import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 public class ClassOrInterfaceSummary {
 	private Boolean isInterface;
 	private String name;
-	private Set<String> modifiers;
-	private Set<String> implementedTypes;
-	private Set<String> extendedTypes;
-	private Set<MethodSummary> methods;
-	private Set<VariableSummary> attributes;
-	private Set<MethodSummary> constructors;
+	@Builder.Default
+	private Set<String> modifiers = new HashSet<>();
+	@Builder.Default
+	private Set<String> implementedTypes = new HashSet<>();
+	@Builder.Default
+	private Set<String> extendedTypes = new HashSet<>();
+	@Builder.Default
+	private Set<MethodSummary> methods = new HashSet<>();
+	@Builder.Default
+	private Set<VariableSummary> attributes = new HashSet<>();
+	@Builder.Default
+	private Set<MethodSummary> constructors = new HashSet<>();
 }

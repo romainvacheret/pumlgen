@@ -1,12 +1,16 @@
 package pumlgen.analysis.summaries;
 
-import lombok.Data;
-
+import java.util.HashSet;
 import java.util.Set;
 
+import lombok.Builder;
+import lombok.Data;
+
 @Data
+@Builder
 public class VariableSummary {
     private String name;
     private String type;
-    private Set<String> modifiers;
+    @Builder.Default
+    private Set<String> modifiers = new HashSet<>();
 }

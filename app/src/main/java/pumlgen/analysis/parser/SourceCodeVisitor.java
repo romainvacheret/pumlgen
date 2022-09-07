@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -19,9 +20,6 @@ import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 
-import pumlgen.analysis.builders.ClassOrInterfaceBuilder;
-import pumlgen.analysis.builders.MethodBuilder;
-import pumlgen.analysis.builders.VariableBuilder;
 import pumlgen.analysis.summaries.ClassOrInterfaceSummary;
 import pumlgen.analysis.summaries.MethodSummary;
 import pumlgen.analysis.summaries.VariableSummary;
@@ -62,71 +60,73 @@ public class SourceCodeVisitor {
 		List<ClassOrInterfaceType> implementedTypes = declaration.getImplementedTypes();
 		System.out.println("Extended" + extendedTypes.toString());
 		System.out.println("Implemented" + implementedTypes.toString());
-		return new ClassOrInterfaceBuilder()
-			.withName(declaration.getNameAsString())
-			.withIsInterface(declaration.isInterface())
-			.withModifiers(declaration.getModifiers().stream()
+
+		// TODO: refactor ClassOrInterfaceSummary's builder with @Singular
+		// to allow to chain several adding to the same collection
+		return ClassOrInterfaceSummary.builder()
+			.name(declaration.getNameAsString())
+			.isInterface(declaration.isInterface())
+			.modifiers(declaration.getModifiers().stream()
 				.map(Modifier::toString)
+				.map(modifier -> modifier.replace(" ", ""))
 				.collect(Collectors.toSet()))
-			.withImplementedTypes(declaration.getImplementedTypes().stream()
+			.implementedTypes(declaration.getImplementedTypes().stream()
 				.map(ClassOrInterfaceType::getNameAsString)
 				.collect(Collectors.toSet()))
-			.withExtendedTypes(declaration.getExtendedTypes().stream()
+			.extendedTypes(declaration.getExtendedTypes().stream()
 				.map(ClassOrInterfaceType::getNameAsString)
 				.collect(Collectors.toSet()))
-			.withMethods(declaration.getConstructors().stream()
-				.map(this::visit)
-				.collect(Collectors.toSet()))
-			.withMethods(declaration.getMethods().stream()
-				.map(this::visit)
-				.collect(Collectors.toSet()))
-			.withAttributes(declaration.getFields().stream()
+			.methods(Stream.concat(
+				declaration.getConstructors().stream().map(this::visit),
+				declaration.getMethods().stream().map(this::visit)
+			).collect(Collectors.toSet()))
+			.attributes(declaration.getFields().stream()
 				.map(this::visit)
 				.collect(Collectors.toSet()))
 			.build();
 	}
 
 	public MethodSummary visit(MethodDeclaration declaration) {
-		return new MethodBuilder()
-			.withName(declaration.getNameAsString())
-			.withType(declaration.getTypeAsString())
-			.withModifiers(declaration.getModifiers().stream()
+		return MethodSummary.builder()
+			.name(declaration.getNameAsString())
+			.type(declaration.getTypeAsString())
+			.modifiers(declaration.getModifiers().stream()
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))
-			.withParameters(declaration.getParameters().stream()
+			.parameters(declaration.getParameters().stream()
 				.map(this::visit)
 				.toList())
 			.build();
 	}
 
 	public MethodSummary visit(ConstructorDeclaration declaration) {
-		return new MethodBuilder()
-			.withName("this")
-			.withType(declaration.getSignature().getName())
-			.withModifiers(declaration.getModifiers().stream()
+		return MethodSummary.builder()
+			.name("this")
+			.type(declaration.getSignature().getName())
+			.modifiers(declaration.getModifiers().stream()
 				.map(Modifier::toString)
 				.collect(Collectors.toSet()))
-			.withParameters(declaration.getParameters().stream()
+			.parameters(declaration.getParameters().stream()
 				.map(this::visit)
 				.toList())
 			.build();
 	}
 
 	public VariableSummary visit(Parameter parameter) {
-		return new VariableBuilder()
-			.withName(parameter.getNameAsString())
-			.withType(parameter.getTypeAsString())
+		return VariableSummary.builder()
+			.name(parameter.getNameAsString())
+			.type(parameter.getTypeAsString())
 			.build();
 	}
 
 	public VariableSummary visit(FieldDeclaration declaration) {
-		 return new VariableBuilder()
-			 .withName(declaration.getVariable(0).getNameAsString())
-			 .withModifiers(declaration.getModifiers().stream()
-			 	.map(Modifier::toString)
-			 	.collect(Collectors.toSet()))
-			 .withType(declaration.getVariables().get(0).getTypeAsString())
-			 .build();
+		return VariableSummary.builder()
+			.name(declaration.getVariable(0).getNameAsString())
+			.modifiers(declaration.getModifiers().stream()
+				.map(Modifier::toString)
+				.collect(Collectors.toSet()))
+			.type(declaration.getVariables().get(0).getTypeAsString())
+			.build();
 	}
 
 	public String visit(PackageDeclaration declaration) {
